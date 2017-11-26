@@ -25,6 +25,20 @@ public class DateUtil {
 ////        Log.d("DateUtil",formatter.format(calendar.getTime()));
 //        return calendar.getTime();
 //    }
+    public static int dayOfMonth(int month,int year){
+        int[] monthDay = {31,28,31,30,31,30,31,31,30,31,30,31};
+        if((year%4==0 && year%100 != 0)|| year%400==0 )
+            monthDay[1]++;
+        return monthDay[month];
+    }
+    public static int getCurrentYear(){
+        Calendar calendar=Calendar.getInstance();
+       return calendar.get(Calendar.YEAR);
+    }
+    public static int getCurrentMonth(){
+        Calendar calendar=Calendar.getInstance();
+       return calendar.get(Calendar.MONTH)+1;
+    }
     public static long getToday(){
 
 

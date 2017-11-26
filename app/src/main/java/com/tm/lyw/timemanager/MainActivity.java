@@ -1,6 +1,7 @@
 package com.tm.lyw.timemanager;
 
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -43,6 +44,7 @@ public class MainActivity extends AppCompatActivity {
     AlertDialog alertDialog;
     CommonAdapter commonAdapter;
     private LuAdapter<TimeBean> adapter;
+    private long time=DateUtil.getToday();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -50,12 +52,17 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+         time=getIntent().getLongExtra("time",0);
+        if (time==0){
+            time=DateUtil.getToday();
+        }
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
+                startActivity(new Intent(MainActivity.this,HistoryActivity.class));
             }
         });
         initData();
@@ -165,7 +172,7 @@ public class MainActivity extends AppCompatActivity {
             daoMaster=new DaoMaster(openHelper.getWritableDb());
         }
         daoSession=daoMaster.newSession();
-        WhereCondition whereCondition= TimeBeanDao.Properties.Date.eq(DateUtil.getToday());
+        WhereCondition whereCondition= TimeBeanDao.Properties.Date.eq(time);
         timeBeanList.clear();
         timeBeanList.addAll(daoSession.getTimeBeanDao().queryBuilder().where(whereCondition).build().list());
 
@@ -217,9 +224,13 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         Log.d(getClass().getSimpleName(),"onDestroy");
-        daoSession.getTimeBeanDao().deleteAll();
-        daoSession.getTimeBeanDao().queryBuilder().where(TimeBeanDao.Properties.Date.eq(DateUtil.getToday())).buildDelete().executeDeleteWithoutDetachingEntities();
-        Log.d(getClass().getSimpleName(),""+timeBeanList.toString());
-        daoSession.getTimeBeanDao().insertInTx(timeBeanList);
+        if (time==DateUtil.getToday()){
+
+//            daoSession.getTimeBeanDao().deleteAll();
+            daoSession.getTimeBeanDao().queryBuilder().where(TimeBeanDao.Properties.Date.eq(DateUtil.getToday())).buildDelete().executeDeleteWithoutDetachingEntities();
+            Log.d(getClass().getSimpleName(),""+timeBeanList.toString());
+            daoSession.getTimeBeanDao().insertInTx(timeBeanList);
+        }
+
     }
 }
