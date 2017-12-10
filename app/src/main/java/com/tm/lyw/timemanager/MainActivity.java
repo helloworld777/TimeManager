@@ -16,6 +16,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.tm.lyw.timemanager.adapter.CommonAdapter;
 import com.tm.lyw.timemanager.adapter.LuAdapter;
@@ -28,10 +29,12 @@ import com.tm.lyw.timemanager.db.TimeBeanDao;
 
 import org.greenrobot.greendao.query.WhereCondition;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener {
     private ListView recyclerView;
     private List<TimeBean> timeBeanList=new ArrayList<>();
     private int timeFormat=0;
@@ -44,6 +47,7 @@ public class MainActivity extends AppCompatActivity {
     AlertDialog alertDialog;
     CommonAdapter commonAdapter;
     private LuAdapter<TimeBean> adapter;
+    TextView tvDate;
     private long time=DateUtil.getToday();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,7 +69,7 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(new Intent(MainActivity.this,HistoryActivity.class));
             }
         });
-        initData();
+
         recyclerView=findViewById(R.id.recyclerView);
 
         commonAdapter=new CommonAdapter<TimeBean>(this,R.layout.item_recyc,timeBeanList) {
@@ -137,6 +141,21 @@ public class MainActivity extends AppCompatActivity {
                 return false;
             }
         });
+
+
+        tvDate=findViewById(R.id.tvDate);
+        findViewById(R.id.tvNext).setOnClickListener(this);
+        findViewById(R.id.tvPre).setOnClickListener(this);
+
+        openHelper=new DaoMaster.DevOpenHelper(this,"time_manage_db");
+        if (daoMaster==null){
+            daoMaster=new DaoMaster(openHelper.getWritableDb());
+        }
+        daoSession=daoMaster.newSession();
+        initDialog();
+        initData();
+    }
+    private void initDialog(){
         String[] items={"非常好","没啥事","正常咯"};
         AlertDialog.Builder builder=new AlertDialog.Builder(this);
         builder.setItems(items, new DialogInterface.OnClickListener() {
@@ -167,11 +186,9 @@ public class MainActivity extends AppCompatActivity {
         alertDialog=builder.create();
     }
     private void initData(){
-        openHelper=new DaoMaster.DevOpenHelper(this,"time_manage_db");
-        if (daoMaster==null){
-            daoMaster=new DaoMaster(openHelper.getWritableDb());
-        }
-        daoSession=daoMaster.newSession();
+        //20171210
+        tvDate.setText(time%10000/100+"-"+time%100);
+
         WhereCondition whereCondition= TimeBeanDao.Properties.Date.eq(time);
         timeBeanList.clear();
         timeBeanList.addAll(daoSession.getTimeBeanDao().queryBuilder().where(whereCondition).build().list());
@@ -196,6 +213,7 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         Log.d(this.getClass().getSimpleName(),timeBeanList.toString());
+        adapter.notifyDataSetChanged();
     }
 
     @Override
@@ -232,5 +250,26 @@ public class MainActivity extends AppCompatActivity {
             daoSession.getTimeBeanDao().insertInTx(timeBeanList);
         }
 
+    }
+
+    @Override
+    public void onClick(View v) {
+        Calendar calendar=Calendar.getInstance();
+        int year=(int) time/10000;
+        int month=(int)time%10000/100;
+        int day=(int)time%100;
+        Log.d(getClass().getSimpleName(),"year:"+year+",month:"+month+",day:"+day);
+        calendar.set(year,month-1,day);
+        switch (v.getId()){
+            case R.id.tvPre:
+                calendar.add(Calendar.DATE,-1);
+                break;
+            case R.id.tvNext:
+                calendar.add(Calendar.DATE,1);
+                break;
+        }
+        SimpleDateFormat format=new SimpleDateFormat("yyyyMMdd");
+        time=Integer.parseInt(format.format(calendar.getTime()));
+        initData();
     }
 }

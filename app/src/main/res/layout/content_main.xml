@@ -1,18 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context="com.tm.lyw.timemanager.MainActivity"
     tools:showIn="@layout/activity_main">
-
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="35dp"
+        android:orientation="horizontal"
+        android:layout_centerInParent="true"
+       >
+        <TextView
+            android:id="@+id/tvPre"
+        android:layout_width="wrap_content"
+        android:layout_height="35dp"
+        android:gravity="center"
+        android:text="上一天"/>
+        <TextView
+            android:id="@+id/tvDate"
+            android:layout_width="wrap_content"
+            android:layout_height="35dp"
+            android:gravity="center"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:text="date"/>
+        <TextView
+            android:id="@+id/tvNext"
+            android:layout_width="wrap_content"
+            android:layout_height="35dp"
+            android:gravity="center"
+            android:text="下一天"/>
+    </LinearLayout>
+    </RelativeLayout>
     <ListView
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="476dp"
 
-       />
+        tools:layout_editor_absoluteY="35dp" />
 
-</android.support.constraint.ConstraintLayout>
+
+
+</LinearLayout>
